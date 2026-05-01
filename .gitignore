@@ -1,0 +1,38 @@
+# Secrets / local config
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Private working notes / transcripts / repo forensics
+.private/
+research/private/
+
+# Captures and generated media
+captures/
+renders/
+stems/
+exports/
+*.wav
+*.mp3
+*.ogg
+*.flac
+*.aiff
+*.m4a
+*.mid
+*.midi
+
+# Dependencies / build
+node_modules/
+.venv/
+venv/
+dist/
+build/
+__pycache__/
+*.pyc
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

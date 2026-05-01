@@ -1,0 +1,21 @@
+{
+  "name": "humforge",
+  "version": "0.0.0",
+  "private": false,
+  "description": "Voice-first, agent-driven music sketching from chat voice notes.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "lint": "node scripts/check-public-safe.mjs"
+  },
+  "keywords": [
+    "music",
+    "agents",
+    "telegram",
+    "voice-notes",
+    "daw",
+    "audio"
+  ],
+  "author": "EthanSK",
+  "license": "UNLICENSED"
+}
