@@ -2,6 +2,10 @@
 
 > Working name: **Humforge**. Final name is still TBD.
 
+## Current phase
+
+Planning only. Do not build the actual product implementation until Ethan explicitly says to start building. The current repo exists to plan the system properly so it can actually be made later.
+
 ## Vision
 
 Humforge is a voice-first, agent-driven music creation system.
