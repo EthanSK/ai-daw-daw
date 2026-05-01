@@ -22,9 +22,10 @@ function* files(dir) {
 }
 
 let failed = false;
+const selfSuffix = `scripts${sep}check-public-safe.mjs`;
 for (const file of files(root)) {
   const text = readFileSync(file, 'utf8');
-  if (file.endsWith('scripts/check-public-safe.mjs')) continue;
+  if (file.endsWith(selfSuffix)) continue;
   for (const needle of forbidden) {
     if (text.includes(needle)) {
       console.error(`Forbidden public content ${JSON.stringify(needle)} in ${file}`);
