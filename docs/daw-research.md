@@ -126,6 +126,77 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Fallback: Ardour** — for shipping Humforge as a *layer on top of an existing DAW*. Lua + OSC are mature, the timeline is battle-tested, and macOS/Linux are first-class. Accept GPLv2 and the no-LLM contribution policy (means we keep agent-generated code in our repo, not upstream).
 - **Practical baseline (closed): REAPER** — for users who already own it. ReaScript (Lua/Python) + OSC give the richest agent-control surface anywhere. We can ship a REAPER-extension flavor of Humforge as an optional path, but cannot redistribute REAPER itself.
 
+## Web / Electron / agent-first DAWs
+
+The previous section converged on Tracktion Engine (primary) and Ardour (fallback) under a "native C++ DAW driven by an out-of-process MCP" assumption. This section re-evaluates that under a different lens: if the agent fully drives the DAW, a JavaScript/TypeScript runtime that the agent can speak to via DOM, IPC, or a documented protocol may be a *much* shorter path than reverse-engineering OSC/headless wrappers around a C++ engine. As of 2026 the landscape has changed materially — Audiotool's NEXUS API (Jan 2026) and openDAW's headless SDK both ship the kind of full project-graph surface that agent-driven music workflows need.
+
+### Candidates
+
+#### openDAW (andremichelle)
+- **License + maintenance:** AGPL-3.0 with commercial alternative; very active in 2025–2026, 1.0 GA targeted Q3 2026, ~2,900 commits on main ([github.com/andremichelle/openDAW](https://github.com/andremichelle/openDAW)).
+- **Architecture:** Pure web (TypeScript ~96 %, Sass), Web Audio API, minimal deps (jszip, ffmpeg.wasm, soundfont2, zod). Tauri desktop wrapper on the roadmap. No React/Vue — custom DOM/Sass.
+- **Agent-control surface:** A separate `opendaw-headless` SDK template repo exists ([github.com/andremichelle/opendaw-headless](https://github.com/andremichelle/opendaw-headless)) that boots the DAW engine as a library; programmatic project edits are possible but the public API surface is thinly documented. No first-party MCP server. DOM/CDP automation is feasible because it's a normal SPA. A "Preset API" is on the 2025-Q4 roadmap.
+- **Plugin / Web Audio:** 18 stock instruments/effects + one ported third-party compressor. No VST/WAM hosting documented. TONE3000 integration announced.
+- **Clip/timeline:** Full multi-track timeline, mixer, automation, MIDI editor — feature-parity with mid-tier native DAWs is the explicit target.
+- **Render:** Not explicitly documented in headless template; ffmpeg.wasm is bundled so offline render is technically reachable.
+- **Mac/Linux/Win:** Browser-universal; Tauri wrapper would inherit Mac/Linux/Win. Dev requires Node ≥23 + mkcert.
+- **Humforge fit:** **4/5** — closest existing match to "open-source web DAW you could plausibly drive end-to-end." Risk is the SDK being a moving target before 1.0.
+
+#### Audiotool Studio + NEXUS
+- **License + maintenance:** Studio host is **closed-source / freemium SaaS**; NEXUS SDK examples repo is **MIT** ([github.com/audiotool/nexus-sdk-examples](https://github.com/audiotool/nexus-sdk-examples)). Open beta launched January 2026 ([musically.com](https://musically.com/2026/02/10/open-beta-launches-for-redesigned-audiotool-studio-daw/)).
+- **Architecture:** Multiplayer cloud DAW (browser), Web Audio + WAM under the hood. NEXUS is a **Protocol Buffers**-defined API covering every DAW entity (devices, cables, patterns, automation, MIDI, plugin state). SDK ships for browser, Node, Bun, Deno, and any protobuf language (Python/Go/Rust).
+- **Agent-control surface:** *Best-in-class for an agent.* `@audiotool/nexus` connects to a live multiplayer session and reads/writes the project graph in real time — exactly the shape an LLM agent wants ([developer.audiotool.com](https://developer.audiotool.com/)). Effectively LSP-for-audio.
+- **Plugin / Web Audio:** Native devices + WAM hosting; partner integrations (Spitfire, Fraunhofer, DAACI).
+- **Clip/timeline:** Full DAW timeline, automation, mixer.
+- **Render:** Cloud-side render; not self-hostable.
+- **Mac/Linux/Win:** Browser-universal, but **the host is not open-source and not self-hostable** — Humforge would be a NEXUS *client*, not a fork.
+- **Humforge fit:** **3/5** — by far the cleanest API, but the host runs on Audiotool's servers and is closed. Dependency, not building block.
+
+#### DAWG ([github.com/dawg/dawg](https://github.com/dawg/dawg))
+- **License:** MIT. **Maintenance:** dormant (last release v0.2.3, March 2020).
+- **Architecture:** Electron + Vue + TypeScript + Web Audio.
+- **Agent surface:** None documented; Electron renderer means CDP automation is trivially possible but you'd be driving an unmaintained UI.
+- **Humforge fit:** **2/5** — useful as a reference for how a Vue/Electron DAW lays out, not a base to fork.
+
+#### Wavtool, BandLab, Soundation, Soundtrap, AmpedStudio
+- All **closed-source** SaaS browser DAWs. Wavtool (the GPT-4 Conductor pioneer) shut down Nov 2024 and was apparently acquired ([audiocipher.com](https://www.audiocipher.com/post/ai-daw)). AmpedStudio uses open-source WAM internally but the host is proprietary. **Reference only**, not eligible building blocks.
+
+#### GridSound, pverrecchia/OpenDAW, node-daw, FL Studio Electron clones
+- Hobby/student-grade open-source web/Electron DAWs. Active to varying degrees but none expose an agent-control surface, none have meaningful plugin ecosystems, and none rival andremichelle/openDAW's depth. **Humforge fit: 1/5.**
+
+#### Existing DAW MCP servers (orthogonal but relevant)
+- `ahujasid/AbletonMCP`, `ptaczek/daw-mcp` (Bitwig + Live), `s2d01/daw-midi-generator-mcp`, `DAW Connect` (29 tools, macOS) — all 2025–2026, all driving **closed-source native DAWs**. Confirm the agent-controls-DAW pattern is real and shippable, but inherit Live/Bitwig licensing constraints.
+
+### Building blocks (not full DAWs)
+- **Tone.js** — Transport/Sequence/Part scheduling on top of Web Audio; the de-facto JS music timing layer.
+- **WaveSurfer.js** — waveform UI + region/clip primitives.
+- **Web Audio Modules 2.0 (WAM)** — open plugin standard ([webaudiomodules.com](https://www.webaudiomodules.com/docs/intro/)); WAM hosts can load any WAM by URI. Supported by Audiotool, AmpedStudio, and increasingly openDAW-adjacent tooling.
+- **Faust / FaustIDE** — DSP-language → Web Audio / WAM / native; strong for agent-generated custom instruments.
+- **Tonal.js** — music-theory primitives the agent uses to *reason*, not render.
+- **ffmpeg.wasm** — render-to-file from the browser without a server.
+
+### Decision matrix (top 3)
+- **openDAW** — License: AGPL-3 / commercial. Architecture: Web (TS, Web Audio), Tauri planned. Agent-control depth: medium (headless SDK exists, public API thin pre-1.0). Best Humforge use: fork or embed as the renderer, build the MCP layer ourselves.
+- **Audiotool NEXUS** — License: MIT SDK / closed host. Architecture: cloud-only browser DAW, protobuf API. Agent-control depth: high (full project graph, every entity, multi-language SDKs). Best Humforge use: ship Humforge-as-a-NEXUS-client for fastest time-to-demo; cannot self-host.
+- **Tone.js + WaveSurfer + WAM + ffmpeg.wasm** — License: MIT all round. Architecture: build-your-own. Agent-control depth: total (we design the API). Best Humforge use: greenfield Humforge-shaped renderer where the "DAW" is whatever the agent's data model says it is.
+
+### Recommendation (web/Electron lens)
+- **Primary:** **openDAW** — only AGPL/commercial open-source web DAW with real depth, an explicit headless SDK, and 2026-active development. Humforge wraps it in Electron/Tauri, layers a Humforge-specific MCP server over the headless SDK, and contributes upstream where the API is thin.
+- **Fallback (fastest demo):** **Audiotool NEXUS as a client integration** — if Humforge's value prop tolerates a SaaS dependency, the NEXUS protobuf surface is the most agent-ready DAW API in existence today. Ship a Humforge agent that drives a NEXUS session, validate the UX, then port to a self-hosted stack.
+- **Build-from-blocks option:** **Tone.js + WaveSurfer + WAM + ffmpeg.wasm + custom React/Svelte shell.** Pick this if openDAW's pace or AGPL implications block product moves, or if Humforge's data model diverges enough from "tracks/clips/automation" that adapting an existing DAW costs more than building.
+
+### How this re-prioritizes the overall recommendation
+This *adds a parallel track* rather than replacing Tracktion Engine + Ardour. The native track wins on audio quality, plugin ecosystem (VST3/AU/CLAP), and offline robustness; the web track wins on agent-control ergonomics and ship speed for a voice-first agent demo. A pragmatic plan is **openDAW (or Tone.js-stack) for the agent-first prototype + voice demo, Tracktion Engine for the eventual "pro" backend**, sharing a common project format (probably MIDI + a Humforge JSON envelope) so the agent's mental model is portable. The closed-source Wavtool/Soundtrap/BandLab/AmpedStudio/Soundation references confirm the market shape but contribute nothing forkable.
+
+### Web/Electron-specific open questions
+- Does openDAW's headless SDK expose **transport, render-to-WAV, MIDI import/export, automation write** through documented TS APIs, or only through the GUI today? (Read `opendaw-headless` source + `naomiaro/opendaw-test`.)
+- AGPL §13 implications for Humforge-as-hosted-SaaS — is the commercial license required, and at what cost?
+- NEXUS auth model — API key, OAuth, or session-token? Rate limits? Can a single Humforge agent run an unattended session?
+- Can openDAW host **WAM** plugins today, or only its 18 stock devices? (The WAM standard is open and adopted by Audiotool/AmpedStudio; openDAW's plugin model is unclear.)
+- Tauri vs. Electron for the desktop wrapper — Tauri is on openDAW's roadmap; does Humforge prefer Tauri (smaller, Rust-core) or Electron (CDP automation is dead-simple)?
+- Render-to-file path: ffmpeg.wasm in-browser vs. spawning a headless openDAW Node process vs. offline `OfflineAudioContext`?
+- Are there any **2026 MCP-for-Web-Audio efforts** beyond the Live/Bitwig MCP servers — i.e., would Humforge's MCP server be the first agent surface for an open-source web DAW? (Likely yes — opportunity.)
+
 ## Open questions / things to verify before building
 - Verify Tracktion Engine GPL terms vs. JUCE's separate license at github.com/Tracktion/tracktion_engine/blob/master/LICENSE.md and juce.com/legal — confirm GPL-only Humforge can ship without paid JUCE seat.
 - Confirm Ardour contribution policy specifics if we ever want patches upstream (LLM-code rule per ardour.org/development.html).
