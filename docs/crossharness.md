@@ -1,6 +1,6 @@
 # CrossHarness Shape
 
-Humforge needs to plug a single audio-generation core (Suno/Udio/Audimee/Kits browser recipes, prompt-craft logic, file/library bookkeeping) into many *agent harnesses* without rewriting the core for each one. A "harness" here means anything that wants to *drive* Humforge: an OpenClaw embedded agent, a Claude Code session (via skills + an MCP server), a local CLI invoked from a terminal, a Telegram bot, a future DAW-side scripting host, or any new agent SDK Ethan adopts. The goal of this doc is to lock down a repo shape — informed by patterns Ethan has already proven in `agent-bridge`, `Repost-with-agent`, `producer-player`, and the small skill repos — so that adding a new harness later means *adding a thin adapter*, not rewriting features.
+AI DAW DAW needs to plug a single audio-generation core (Suno/Udio/Audimee/Kits browser recipes, prompt-craft logic, file/library bookkeeping) into many *agent harnesses* without rewriting the core for each one. A "harness" here means anything that wants to *drive* AI DAW DAW: an OpenClaw embedded agent, a Claude Code session (via skills + an MCP server), a local CLI invoked from a terminal, a Telegram bot, a future DAW-side scripting host, or any new agent SDK Ethan adopts. The goal of this doc is to lock down a repo shape — informed by patterns Ethan has already proven in `agent-bridge`, `Repost-with-agent`, `producer-player`, and the small skill repos — so that adding a new harness later means *adding a thin adapter*, not rewriting features.
 
 ## Reference repos analyzed
 
@@ -14,45 +14,45 @@ Humforge needs to plug a single audio-generation core (Suno/Udio/Audimee/Kits br
 ### Pattern 1: Core / harness split, with a `contracts` package between them
 - **From:** `producer-player:packages/contracts/` and `:packages/domain/`; `agent-bridge:mcp-server/src/{config,inbox,tools,watcher}.ts` (pure) vs `mcp-server/src/index.ts` (transport).
 - **What:** Pure domain code (types, business rules) lives in a separate package from any harness adapter. Harnesses import contracts; the core never imports a harness.
-- **How Humforge uses it:** `packages/core/` (provider recipes, prompt builders, library) + `packages/contracts/` (`GenerateRequest`, `GenerationProof`, `LibraryEntry`, `ProviderId`, `HarnessEvent`). Every adapter (`mcp-server`, `cli`, `openclaw-channel`, `telegram-bot`) imports from `@humforge/contracts` only.
+- **How AI DAW DAW uses it:** `packages/core/` (provider recipes, prompt builders, library) + `packages/contracts/` (`GenerateRequest`, `GenerationProof`, `LibraryEntry`, `ProviderId`, `HarnessEvent`). Every adapter (`mcp-server`, `cli`, `openclaw-channel`, `telegram-bot`) imports from `@ai-daw-daw/contracts` only.
 
 ### Pattern 2: One repo, multiple manifest-shaped subprojects
 - **From:** `agent-bridge` ships `.mcp.json` (under `mcp-server/`), `openclaw.plugin.json` (under `openclaw-channel/`), `.claude-plugin/marketplace.json` (root), and `skills/*/SKILL.md` from a single repo. `Repost-with-agent` does the same with `openclaw.plugin.json` + `.claude-plugin/plugin.json` + per-skill `SKILL.md`.
 - **What:** Each harness manifest is colocated with the entry point it points at; the marketplace manifest at `.claude-plugin/` advertises the repo as a Claude Code plugin source.
-- **How Humforge uses it:** keep `humforge/mcp-server/.mcp.json`, `humforge/openclaw-plugin/openclaw.plugin.json`, `humforge/.claude-plugin/marketplace.json`, and skill files in `humforge/skills/*/SKILL.md`. One `git pull` updates every harness.
+- **How AI DAW DAW uses it:** keep `ai-daw-daw/mcp-server/.mcp.json`, `ai-daw-daw/openclaw-plugin/openclaw.plugin.json`, `ai-daw-daw/.claude-plugin/marketplace.json`, and skill files in `ai-daw-daw/skills/*/SKILL.md`. One `git pull` updates every harness.
 
 ### Pattern 3: Persistent user-state directory under `~/.<project>/`
 - **From:** `agent-bridge` → `~/.agent-bridge/{config,keys,inbox/}`. `Repost-with-agent` → `~/.repost-with-agent/{pairs.json,history/,learnings/}` plus per-job *workspace* dirs containing `user-setup.json`, `queue.jsonl`, `state.json`, `logs/`. `Repost-with-agent:templates/repost_with_agent_workspace/` ships the canonical empty workspace tree.
 - **What:** Two-tier state: (a) a per-user dir for global config/credentials/keys; (b) a per-job *workspace* dir, scaffolded from a `templates/` skeleton by an `init_*_workspace.py` script, so the agent can resume across sessions and machines.
-- **How Humforge uses it:** `~/.humforge/{config.json, browser-profile/, providers/{suno,udio,audimee,kits}/cookies/, library/}`. Per-song workspace under `humforge_workspace/<song>/{prompt.json, generations.jsonl, proofs/, audio/, state.json}` scaffolded by `scripts/init_humforge_workspace.py`.
+- **How AI DAW DAW uses it:** `~/.ai-daw-daw/{config.json, browser-profile/, providers/{suno,udio,audimee,kits}/cookies/, library/}`. Per-song workspace under `ai-daw-daw_workspace/<song>/{prompt.json, generations.jsonl, proofs/, audio/, state.json}` scaffolded by `scripts/init_ai-daw-daw_workspace.py`.
 
 ### Pattern 4: Persistent browser profile + proof-of-work logging, never headless-stealth
 - **From:** `Repost-with-agent`: `playwrightProfileDir` in the plugin config schema, `safety.preview_before_publish`, `proof_policy.{capture_screenshot,record_final_url,append_run_log}`, an explicit `stop_on_login_challenge` guardrail, and a SKILL.md that bans CAPTCHA/2FA bypass.
 - **What:** Browser automation runs against a persistent user profile (login state survives sessions), every action emits a proof artifact (screenshot + final URL + log line), and the agent halts on any auth wall instead of trying to defeat it.
-- **How Humforge uses it:** every provider recipe (`adapters/providers/{suno,udio,audimee,kits}.ts`) shares a Playwright runner with `--user-data-dir=~/.humforge/browser-profile/` and writes `proofs/<ts>-<provider>-<step>.{png,json}` next to each generation. A central `safety.ts` enforces "stop on login challenge / payment / unexpected modal" the same way Repost does.
+- **How AI DAW DAW uses it:** every provider recipe (`adapters/providers/{suno,udio,audimee,kits}.ts`) shares a Playwright runner with `--user-data-dir=~/.ai-daw-daw/browser-profile/` and writes `proofs/<ts>-<provider>-<step>.{png,json}` next to each generation. A central `safety.ts` enforces "stop on login challenge / payment / unexpected modal" the same way Repost does.
 
 ### Pattern 5: Adapter pluralism — sources + destinations as registries, not switch statements
 - **From:** `Repost-with-agent:src/adapters/{source.ts,destination.ts}` plus `src/adapters/sources/linkedin.ts` and `src/adapters/destinations/x.ts`. Each adapter implements a small interface; `core/orchestrator.ts` only knows about the interface.
 - **What:** Adding a new platform means dropping a file under `adapters/<kind>/` that exports the interface — no edits to core.
-- **How Humforge uses it:** `packages/core/src/adapters/providers/{suno,udio,audimee,kits}.ts` each export a `Provider` interface (`generate`, `download`, `list`, `cost`); a registry indexes them by `ProviderId`. New provider = new file, no orchestrator edits.
+- **How AI DAW DAW uses it:** `packages/core/src/adapters/providers/{suno,udio,audimee,kits}.ts` each export a `Provider` interface (`generate`, `download`, `list`, `cost`); a registry indexes them by `ProviderId`. New provider = new file, no orchestrator edits.
 
 ### Pattern 6: Skill-as-thin-instruction-layer; CLI / MCP do the work
 - **From:** `agent-bridge:skills/agent-bridge/SKILL.md` (frontmatter + when-to-activate + table of CLI/MCP tools), `Repost-with-agent:skills/{repost-pair-setup,repost-run}/SKILL.md` (conversation script + which CLI command to call). `emoji-consistency:SKILL.md` is the same shape stripped to the minimum.
 - **What:** SKILL.md files are not implementation — they are prompt-time instructions that *route* the agent to the right CLI/MCP tool, with clear "activate when…" triggers and safety bullets. Logic lives in TS/JS, not in markdown.
-- **How Humforge uses it:** `skills/humforge-generate/SKILL.md`, `skills/humforge-library/SKILL.md`, `skills/humforge-setup/SKILL.md` — each ~40 lines, pointing at `humforge` CLI subcommands and `mcp__humforge__*` tools. Multiple harnesses (Claude Code, OpenClaw) consume the same SKILL.md.
+- **How AI DAW DAW uses it:** `skills/ai-daw-daw-generate/SKILL.md`, `skills/ai-daw-daw-library/SKILL.md`, `skills/ai-daw-daw-setup/SKILL.md` — each ~40 lines, pointing at `ai-daw-daw` CLI subcommands and `mcp__ai-daw-daw__*` tools. Multiple harnesses (Claude Code, OpenClaw) consume the same SKILL.md.
 
 ### Pattern 7: Cross-platform installer + CLI shim
 - **From:** `agent-bridge` ships `install.sh` (bash, mac/linux), `install.ps1` (Windows PowerShell), a bash CLI named `agent-bridge`, and `agent-bridge.cmd` as a Windows shim that re-invokes the bash via Git Bash. `~/.claude/CLAUDE.md` notes the shim lives at `%LOCALAPPDATA%\agent-bridge\bin\`.
 - **What:** Same CLI works from bash, zsh, PowerShell, and cmd; the install script picks the right packaging path per OS.
-- **How Humforge uses it:** `humforge` (bash entrypoint), `humforge.cmd` (Win shim), `install.sh` + `install.ps1`. The CLI delegates to a Node/TS binary built into `dist/`.
+- **How AI DAW DAW uses it:** `ai-daw-daw` (bash entrypoint), `ai-daw-daw.cmd` (Win shim), `install.sh` + `install.ps1`. The CLI delegates to a Node/TS binary built into `dist/`.
 
-## Proposed Humforge top-level layout
+## Proposed AI DAW DAW top-level layout
 
 ```text
-humforge/
+ai-daw-daw/
 ├── .claude-plugin/
 │   └── marketplace.json           # advertises the repo to Claude Code plugin marketplaces
-├── mcp-server/                    # MCP harness — exposes humforge_* tools to any MCP client
+├── mcp-server/                    # MCP harness — exposes ai-daw-daw_* tools to any MCP client
 │   ├── .mcp.json
 │   ├── package.json
 │   ├── src/
@@ -84,22 +84,22 @@ humforge/
 │   └── cli/                       # local-CLI harness; built to dist/cli.js
 │       └── src/index.ts
 ├── skills/                        # SKILL.md instruction files (Claude Code + OpenClaw)
-│   ├── humforge-setup/SKILL.md
-│   ├── humforge-generate/SKILL.md
-│   └── humforge-library/SKILL.md
-├── commands/                      # /humforge:* slash commands (Claude Code plugin)
+│   ├── ai-daw-daw-setup/SKILL.md
+│   ├── ai-daw-daw-generate/SKILL.md
+│   └── ai-daw-daw-library/SKILL.md
+├── commands/                      # /ai-daw-daw:* slash commands (Claude Code plugin)
 │   ├── generate.md
 │   ├── library.md
 │   └── setup.md
 ├── templates/
-│   └── humforge_workspace/        # scaffolded by scripts/init_humforge_workspace.py
+│   └── ai-daw-daw_workspace/        # scaffolded by scripts/init_ai-daw-daw_workspace.py
 │       ├── prompt.json
 │       ├── generations.jsonl
 │       ├── state.json
 │       ├── proofs/.gitkeep
 │       └── audio/.gitkeep
 ├── scripts/
-│   ├── init_humforge_workspace.py
+│   ├── init_ai-daw-daw_workspace.py
 │   ├── install.sh
 │   ├── install.ps1
 │   ├── auto-update-coord.sh
@@ -110,8 +110,8 @@ humforge/
 │   ├── safety.md
 │   └── lifecycle-history.md
 ├── site/                          # GitHub Pages landing (optional, mirrors agent-bridge)
-├── humforge                       # bash CLI entrypoint
-├── humforge.cmd                   # Windows shim → calls humforge under Git Bash
+├── ai-daw-daw                       # bash CLI entrypoint
+├── ai-daw-daw.cmd                   # Windows shim → calls ai-daw-daw under Git Bash
 ├── README.md
 ├── AGENTS.md                      # primary agent-facing instructions
 ├── INSTRUCTIONS.md                # operator-facing
@@ -124,12 +124,12 @@ humforge/
 
 ## Manifests / boundaries
 
-- **`mcp-server/.mcp.json`** — exposes the `humforge_*` MCP tools (`humforge_generate`, `humforge_list_library`, `humforge_get_proof`, `humforge_setup_provider`, `humforge_describe`, `humforge_continue`) to any MCP client (Claude Code, agent-bridge consumers, future Codex/SDK harnesses). Pattern follows `EthanSK/agent-bridge:mcp-server/.mcp.json` (`command: node`, `args: ["${CLAUDE_PLUGIN_ROOT}/build/index.js"]`, env vars for role/config).
-- **`openclaw-plugin/openclaw.plugin.json`** — declares the `humforge` channel for OpenClaw embedded agents, plus a `configSchema` mirroring agent-bridge's pattern (paths under `~/.humforge`, browser-profile dir, default provider, peer routing). Skills are exposed via `skills_roots: ["../skills"]` like Repost does.
+- **`mcp-server/.mcp.json`** — exposes the `ai-daw-daw_*` MCP tools (`ai-daw-daw_generate`, `ai-daw-daw_list_library`, `ai-daw-daw_get_proof`, `ai-daw-daw_setup_provider`, `ai-daw-daw_describe`, `ai-daw-daw_continue`) to any MCP client (Claude Code, agent-bridge consumers, future Codex/SDK harnesses). Pattern follows `EthanSK/agent-bridge:mcp-server/.mcp.json` (`command: node`, `args: ["${CLAUDE_PLUGIN_ROOT}/build/index.js"]`, env vars for role/config).
+- **`openclaw-plugin/openclaw.plugin.json`** — declares the `ai-daw-daw` channel for OpenClaw embedded agents, plus a `configSchema` mirroring agent-bridge's pattern (paths under `~/.ai-daw-daw`, browser-profile dir, default provider, peer routing). Skills are exposed via `skills_roots: ["../skills"]` like Repost does.
 - **`skills/*/SKILL.md`** — agent-facing instructions consumed by both Claude Code and OpenClaw. Pure routing/conversation guidance, no business logic. Same files serve every Claude-shaped harness.
-- **`.claude-plugin/marketplace.json`** — advertises Humforge as a Claude Code plugin (one plugin entry pointing at `./mcp-server`). Mirrors `agent-bridge:.claude-plugin/marketplace.json`.
-- **`commands/*.md`** — Claude Code slash commands (`/humforge:generate`, `/humforge:setup`, `/humforge:library`). Same shape as `Repost-with-agent:commands/{pair,preview,run}.md`.
-- **`package.json` / language choice** — TypeScript-Node primary, with npm workspaces (matches agent-bridge + producer-player). Python only for ops scripts (`scripts/init_humforge_workspace.py`) where it's already the de-facto standard. Reasons: Playwright is best-in-class in Node; MCP SDK is most mature in TS; producer-player and agent-bridge both prove the workspaces pattern; one runtime simplifies install. No `pyproject.toml` at repo root.
+- **`.claude-plugin/marketplace.json`** — advertises AI DAW DAW as a Claude Code plugin (one plugin entry pointing at `./mcp-server`). Mirrors `agent-bridge:.claude-plugin/marketplace.json`.
+- **`commands/*.md`** — Claude Code slash commands (`/ai-daw-daw:generate`, `/ai-daw-daw:setup`, `/ai-daw-daw:library`). Same shape as `Repost-with-agent:commands/{pair,preview,run}.md`.
+- **`package.json` / language choice** — TypeScript-Node primary, with npm workspaces (matches agent-bridge + producer-player). Python only for ops scripts (`scripts/init_ai-daw-daw_workspace.py`) where it's already the de-facto standard. Reasons: Playwright is best-in-class in Node; MCP SDK is most mature in TS; producer-player and agent-bridge both prove the workspaces pattern; one runtime simplifies install. No `pyproject.toml` at repo root.
 
 ## CrossHarness routing matrix
 
@@ -137,17 +137,17 @@ humforge/
 |---|---|---|
 | **OpenClaw** | `openclaw-plugin/openclaw.plugin.json` channel + `skills/*/SKILL.md` | Channel handles inbound user messages → calls into `packages/core` via `tools.ts`. Identical to how `agent-bridge:openclaw-channel/` injects into running sessions. |
 | **Claude Code** | `mcp-server/.mcp.json` (tools) + `skills/*/SKILL.md` (instructions) + `commands/*.md` (slash commands) + `.claude-plugin/marketplace.json` (install path) | All three surfaces installed by one marketplace entry. |
-| **Local CLI** | `humforge` bash entry → `packages/cli` | Pure local use, no agent. Useful for cron jobs and manual debugging. Mirrors `agent-bridge` CLI. |
-| **Telegram bot** | OpenClaw's `telegram` channel + Humforge's OpenClaw plugin | No bespoke Telegram code in Humforge — reuses OpenClaw's existing Telegram channel. The `replyVia` pattern from `agent-bridge:openclaw-channel` already covers Telegram-out routing. |
-| **DAW plugin / scripting host** | Future: a thin host adapter that imports `packages/contracts` + spawns `packages/cli` as a subprocess (or talks `mcp-server` over stdio). DAWs that embed JS (e.g. Reaper Lua, Ableton M4L, JUCE-with-V8) shell out to `humforge` and read JSONL events. | The `HarnessEvent` contract is the only thing the DAW side needs to depend on. |
+| **Local CLI** | `ai-daw-daw` bash entry → `packages/cli` | Pure local use, no agent. Useful for cron jobs and manual debugging. Mirrors `agent-bridge` CLI. |
+| **Telegram bot** | OpenClaw's `telegram` channel + AI DAW DAW's OpenClaw plugin | No bespoke Telegram code in AI DAW DAW — reuses OpenClaw's existing Telegram channel. The `replyVia` pattern from `agent-bridge:openclaw-channel` already covers Telegram-out routing. |
+| **DAW plugin / scripting host** | Future: a thin host adapter that imports `packages/contracts` + spawns `packages/cli` as a subprocess (or talks `mcp-server` over stdio). DAWs that embed JS (e.g. Reaper Lua, Ableton M4L, JUCE-with-V8) shell out to `ai-daw-daw` and read JSONL events. | The `HarnessEvent` contract is the only thing the DAW side needs to depend on. |
 
 ## Open questions / decisions to make before building
 
-- **Node/TS as the only primary runtime?** Producer-player and agent-bridge confirm yes; but Humforge may want a small Python helper for audio analysis (loudness, BPM). Decision: TS-first, Python only via subprocess from `scripts/`.
-- **MCP-first vs CLI-first?** `agent-bridge` is MCP-first with a CLI shim; `Repost-with-agent` is CLI-first with skill wrappers. Humforge probably wants **MCP-first** because the primary user is an agent — but the CLI must remain a first-class consumer of `packages/core` (not a thin wrapper around the MCP server) so cron/DAW use doesn't depend on a running agent.
-- **Where do provider credentials live?** Likely `~/.humforge/providers/<id>/{cookies.json,profile/}` per-provider; OS keychain (macOS Keychain / Windows Credential Manager / libsecret) for any non-cookie secret. Browser-profile-only is the safest default — mirrors Repost's `playwrightProfileDir`.
-- **Workspace scope: per-song, per-album, or per-project?** Repost uses per-job workspaces. Humforge probably wants **per-song** workspaces with an optional album manifest grouping them — so the agent can resume one song without entangling siblings.
+- **Node/TS as the only primary runtime?** Producer-player and agent-bridge confirm yes; but AI DAW DAW may want a small Python helper for audio analysis (loudness, BPM). Decision: TS-first, Python only via subprocess from `scripts/`.
+- **MCP-first vs CLI-first?** `agent-bridge` is MCP-first with a CLI shim; `Repost-with-agent` is CLI-first with skill wrappers. AI DAW DAW probably wants **MCP-first** because the primary user is an agent — but the CLI must remain a first-class consumer of `packages/core` (not a thin wrapper around the MCP server) so cron/DAW use doesn't depend on a running agent.
+- **Where do provider credentials live?** Likely `~/.ai-daw-daw/providers/<id>/{cookies.json,profile/}` per-provider; OS keychain (macOS Keychain / Windows Credential Manager / libsecret) for any non-cookie secret. Browser-profile-only is the safest default — mirrors Repost's `playwrightProfileDir`.
+- **Workspace scope: per-song, per-album, or per-project?** Repost uses per-job workspaces. AI DAW DAW probably wants **per-song** workspaces with an optional album manifest grouping them — so the agent can resume one song without entangling siblings.
 - **DAW-side embedding model.** Subprocess + JSONL is the cheapest path and survives every DAW; an in-process WebView is nicer UX but couples to a host. Decision: ship subprocess+JSONL first, leave a WebView host adapter as a future package.
-- **Hot-reload vs full restart for the MCP child.** Per `~/.claude/CLAUDE.md`, `/reload-plugins` does NOT respawn MCP children. Document up front that updating Humforge requires a Claude Code restart, and version the contracts package strictly so partial updates fail loudly instead of silently.
+- **Hot-reload vs full restart for the MCP child.** Per `~/.claude/CLAUDE.md`, `/reload-plugins` does NOT respawn MCP children. Document up front that updating AI DAW DAW requires a Claude Code restart, and version the contracts package strictly so partial updates fail loudly instead of silently.
 - **Versioning and contracts evolution.** Adopt the `lifecycle-history.md` pattern from `agent-bridge:docs/` — every breaking change to `packages/contracts` gets a dated entry. CHANGELOG at root for everything else.
-- **Test pyramid.** `agent-bridge` has heavy unit tests in `mcp-server/test/` and `openclaw-channel/test/`; `producer-player` has Playwright E2E in `apps/e2e/`. Humforge needs both: unit tests on `packages/core` (mocked Playwright) + E2E specs that drive the real provider browser recipes against a sandbox or live-with-throttling.
+- **Test pyramid.** `agent-bridge` has heavy unit tests in `mcp-server/test/` and `openclaw-channel/test/`; `producer-player` has Playwright E2E in `apps/e2e/`. AI DAW DAW needs both: unit tests on `packages/core` (mocked Playwright) + E2E specs that drive the real provider browser recipes against a sandbox or live-with-throttling.

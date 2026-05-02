@@ -1,9 +1,9 @@
 ---
-name: humforge
+name: ai-daw-daw
 description: Create music sketches from voice notes, humming, singing, beatboxing, metronome requests, and spoken arrangement instructions.
 ---
 
-# Humforge Skill
+# AI DAW DAW Skill
 
 Use this skill when the user wants to make or edit a song by voice/chat.
 

@@ -1,6 +1,6 @@
-# Humforge Plan
+# AI DAW DAW Plan
 
-> Working name: **Humforge**. Final name is still TBD.
+> Working name: **AI DAW DAW**. Final name is still TBD.
 
 ## Current phase
 
@@ -8,7 +8,7 @@ Planning only. Do not build the actual product implementation until Ethan explic
 
 ## Vision
 
-Humforge is a voice-first, agent-driven music creation system.
+AI DAW DAW is a voice-first, agent-driven music creation system.
 
 The user should be able to talk, hum, sing, beatbox, or ask for a metronome in chat. The system should then route that audio through the best available music tools — local engines, browser-based paid tools, APIs, DAWs, plugins, or agent workflows — and layer the results into a song project.
 
@@ -26,7 +26,7 @@ The project should not feel MIDI-first to the user.
 
 MIDI may still be useful internally, but the user experience should be: **I sing or hum; agents use whatever modern tools work best; the song gains layers.**
 
-Research should therefore include new/trendy AI music tools even when they are paid, browser-only, or not token/API-based. If a good tool only works through a web app, Humforge can include agentic browser-use instructions for it.
+Research should therefore include new/trendy AI music tools even when they are paid, browser-only, or not token/API-based. If a good tool only works through a web app, AI DAW DAW can include agentic browser-use instructions for it.
 
 ## Core features
 
@@ -69,7 +69,7 @@ Research should therefore include new/trendy AI music tools even when they are p
 
 ### DAW / harness direction
 
-Investigate whether Humforge should use an open-source DAW/audio engine as its “harness”.
+Investigate whether AI DAW DAW should use an open-source DAW/audio engine as its “harness”.
 
 The ideal DAW/codebase would be:
 
@@ -83,7 +83,7 @@ The ideal DAW/codebase would be:
 
 ## Cross-harness plugin/app shape
 
-Humforge should be structured as a hybrid of text and code:
+AI DAW DAW should be structured as a hybrid of text and code:
 
 - manifests for harness discovery
 - skill/instruction docs for agents
@@ -105,14 +105,14 @@ Target harnesses may include:
 ## Proposed repo skeleton
 
 ```txt
-humforge/
+ai-daw-daw/
   README.md
   PLAN.md
   .env.example
   package.json / pyproject.toml
 
   skills/
-    humforge/SKILL.md
+    ai-daw-daw/SKILL.md
 
   apps/
     telegram-bot/
@@ -152,9 +152,9 @@ humforge/
 ## Current research tasks
 
 - Research new/trendy AI tools for direct humming/singing/voice-to-instrument/song/layer workflows, including paid or browser-only tools.
-- Research open-source DAWs/audio engines to find the best codebase to extend or control as the Humforge harness.
+- Research open-source DAWs/audio engines to find the best codebase to extend or control as the AI DAW DAW harness.
 - Compare Ethan’s existing repos for the best CrossHarness-compatible plugin/app/skill structure.
 
 ## Name
 
-Working name is **Humforge**. Final name is pending.
+Working name is **AI DAW DAW**. Final name is pending.

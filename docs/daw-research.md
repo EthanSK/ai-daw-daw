@@ -1,9 +1,9 @@
 # Open-Source DAW / Audio Harness Research
 
-Humforge is a voice-first, agent-driven music creation system in planning. The "harness" question is whether to extend an existing open-source DAW or build on a lower-level audio engine. This report evaluates 10 candidates against Humforge's hard requirements: cross-platform (macOS + Linux required, Windows bonus), open-source-compatible licensing, active 2025–2026 maintenance, real timeline/clip/multi-track model, plugin hosting, render-to-file, and an external-control surface (scripting, OSC, RPC, IPC, or library embedding).
+AI DAW DAW is a voice-first, agent-driven music creation system in planning. The "harness" question is whether to extend an existing open-source DAW or build on a lower-level audio engine. This report evaluates 10 candidates against AI DAW DAW's hard requirements: cross-platform (macOS + Linux required, Windows bonus), open-source-compatible licensing, active 2025–2026 maintenance, real timeline/clip/multi-track model, plugin hosting, render-to-file, and an external-control surface (scripting, OSC, RPC, IPC, or library embedding).
 
 ## Evaluation criteria
-- License + implications for Humforge (copyleft contagion risk)
+- License + implications for AI DAW DAW (copyleft contagion risk)
 - Maintenance status (last release, commit cadence in 2025–2026)
 - Build complexity on macOS + Linux
 - Scripting / automation / IPC surface (Lua, Python, OSC, gRPC, file-control)
@@ -15,7 +15,7 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 ## Candidates
 
 ### Ardour
-- **License:** GPLv2 (per ardour.org/development.html). Project explicitly refuses LLM-generated contributions ("no LLM-generated code may be copyrighted in the USA"). GPL contagion: any Humforge code linking Ardour internals must be GPL-compatible. ([Ardour dev page](https://ardour.org/development.html))
+- **License:** GPLv2 (per ardour.org/development.html). Project explicitly refuses LLM-generated contributions ("no LLM-generated code may be copyrighted in the USA"). GPL contagion: any AI DAW DAW code linking Ardour internals must be GPL-compatible. ([Ardour dev page](https://ardour.org/development.html))
 - **Maintenance (2026):** Active. Robin Gareus gave a Lua-scripting talk at LAC 2025; Ardour 8.x is current line. ~43k commits on master. ([LAC2025 talk](https://www.youtube.com/watch?v=Seg5rbvF1C8))
 - **Mac/Linux build:** ~1M LOC C++/gtkmm. Both supported officially; see Ardour's "Building Ardour on Linux" / "Building Ardour on OS X" guides. Heavy dep tree (gtkmm, boost, JACK, etc.).
 - **Scripting / IPC:** Best-in-class for an open DAW — embedded Lua, full OSC server, and Lua bindings can send/receive OSC. Hook scripts (`_osc_hook_example.lua`) shipped in tree. ([Ardour Lua manual](https://manual.ardour.org/lua-scripting/), [class reference](https://manual.ardour.org/lua-scripting/class_reference/))
@@ -23,7 +23,7 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Clip/timeline model:** Full multi-track timeline, regions, clips, takes, comping. Mature.
 - **Agent-control friendliness:** Strong via Lua + OSC, but Ardour is GUI-first; headless operation requires extra plumbing.
 - **Render/export:** Full export including stem export, freewheel offline rendering.
-- **Humforge fit:** **5/5** — by far the most agent-friendly full DAW; the LLM-code policy means we can't upstream agent-generated code to Ardour, but a downstream fork or Lua-script layer is fine.
+- **AI DAW DAW fit:** **5/5** — by far the most agent-friendly full DAW; the LLM-code policy means we can't upstream agent-generated code to Ardour, but a downstream fork or Lua-script layer is fine.
 
 ### Zrythm
 - **License:** AGPL-3.0 (GitHub repo badge). AGPL contagion is stronger than GPL — any network service exposing Zrythm-derived code must release source. ([zrythm/zrythm](https://github.com/zrythm/zrythm))
@@ -34,7 +34,7 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Clip/timeline model:** Modern timeline + chord/scale tooling.
 - **Agent-control friendliness:** Limited until scripting matures.
 - **Render/export:** Yes.
-- **Humforge fit:** **3/5** — modern, but AGPL + thin scripting surface make it less agent-friendly than Ardour.
+- **AI DAW DAW fit:** **3/5** — modern, but AGPL + thin scripting surface make it less agent-friendly than Ardour.
 
 ### LMMS
 - **License:** GPL-2.0-or-later. ([LMMS GitHub](https://github.com/LMMS/lmms))
@@ -45,7 +45,7 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Clip/timeline model:** Pattern/beat-bassline + Song Editor — weaker for free-form voice-clip layering than Ardour/Tracktion.
 - **Agent-control friendliness:** Low — would mean writing XML project files and rendering via CLI.
 - **Render/export:** Yes (CLI render supported).
-- **Humforge fit:** **2/5** — mismatch with voice-clip, free-timeline workflow.
+- **AI DAW DAW fit:** **2/5** — mismatch with voice-clip, free-timeline workflow.
 
 ### Bespoke Synth
 - **License:** GPLv3. ([awwbees/BespokeSynth](https://github.com/awwbees/BespokeSynth))
@@ -56,12 +56,12 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Clip/timeline model:** **Modular live-patch environment, not a clip timeline.** No song-arrangement model in the DAW sense.
 - **Agent-control friendliness:** Python is great for agents, but no timeline = wrong shape.
 - **Render/export:** Audio export, but live-performance-oriented.
-- **Humforge fit:** **2/5** — wrong primitive (modular patcher, not arrangement DAW).
+- **AI DAW DAW fit:** **2/5** — wrong primitive (modular patcher, not arrangement DAW).
 
 ### Audacity / Tenacity
 - **License:** Audacity GPLv2; Tenacity GPLv2/v3 fork (verify at github.com/tenacityteam/tenacity LICENSE).
 - **Notes:** Editor, not a clip-timeline multi-track DAW with plugin-host arrangement. Tenacity exists because of Audacity's Muse Group telemetry controversy.
-- **Humforge fit:** **1/5** — recommend against. Reference only.
+- **AI DAW DAW fit:** **1/5** — recommend against. Reference only.
 
 ### Tracktion Engine
 - **License:** **GPLv3 / commercial dual-license**, plus separate JUCE license requirement. ([Tracktion/tracktion_engine](https://github.com/Tracktion/tracktion_engine))
@@ -72,7 +72,7 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Clip/timeline model:** **Full Edit/Track/Clip model** — production-grade DAW data model designed for embedding.
 - **Agent-control friendliness:** Highest — agents write C++/JSON that drives the engine; no GUI to scrape; headless render natively.
 - **Render/export:** First-class offline render.
-- **Humforge fit:** **5/5** — best fit if Humforge is willing to be a *new* app rather than an extension. Caveat: GPLv3 unless commercial license is purchased; JUCE license fees apply for closed-source distribution but JUCE is free for GPL projects.
+- **AI DAW DAW fit:** **5/5** — best fit if AI DAW DAW is willing to be a *new* app rather than an extension. Caveat: GPLv3 unless commercial license is purchased; JUCE license fees apply for closed-source distribution but JUCE is free for GPL projects.
 
 ### Carla
 - **License:** GPLv2+. ([falkTX/Carla](https://github.com/falkTX/Carla))
@@ -82,7 +82,7 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Plugin hosting:** LADSPA, DSSI, LV2, VST2, VST3, AU; SF2/SF3/SFZ.
 - **Clip/timeline model:** **None** — Carla is a plugin host/router, not a DAW.
 - **Render/export:** Limited (audio file player + plugin chain).
-- **Humforge fit:** **2/5 standalone, 4/5 as backend** — pair with Ardour or a custom layer for plugin-hosting.
+- **AI DAW DAW fit:** **2/5 standalone, 4/5 as backend** — pair with Ardour or a custom layer for plugin-hosting.
 
 ### REAPER
 - **License:** **Commercial paid** (~$60 discounted / $225 commercial). DRM-free, but **not redistributable**. ReaScript = Lua/Python/EEL. ([reaper.fm](https://www.reaper.fm/))
@@ -93,12 +93,12 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Clip/timeline model:** Industry-standard.
 - **Agent-control friendliness:** Excellent via ReaScript.
 - **Render/export:** Excellent CLI + scripted render.
-- **Humforge fit:** **N/A as harness for an open-source project** — cannot ship REAPER inside Humforge. Useful as a **practical baseline** Humforge users may already own. Verify license terms at reaper.fm/license.php.
+- **AI DAW DAW fit:** **N/A as harness for an open-source project** — cannot ship REAPER inside AI DAW DAW. Useful as a **practical baseline** AI DAW DAW users may already own. Verify license terms at reaper.fm/license.php.
 
 ### JUCE
 - **License:** Dual GPLv3 / commercial (verify at github.com/juce-framework/JUCE LICENSE.md). Latest 8.0.12 (2025-12-16). ([JUCE](https://github.com/juce-framework/JUCE))
 - **What it gives you:** Plugin hosting, audio I/O, GUI, format wrappers — **no DAW timeline model.** That's what Tracktion Engine adds on top.
-- **Humforge fit:** **3/5** — too low-level alone; pick Tracktion Engine instead.
+- **AI DAW DAW fit:** **3/5** — too low-level alone; pick Tracktion Engine instead.
 
 ### Sushi (Elk Audio)
 - **License:** AGPLv3 (per LICENSE.md / COPYING — verify). ([elk-audio/sushi](https://github.com/elk-audio/sushi))
@@ -108,13 +108,13 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 - **Plugin hosting:** VST2, VST3, LV2.
 - **Clip/timeline model:** **Limited** — sequencer/synth-host orientation, not a clip arrangement DAW.
 - **Render/export:** Supported.
-- **Humforge fit:** **3/5** — strong headless+gRPC story but missing arrangement model. AGPL is stricter than GPL.
+- **AI DAW DAW fit:** **3/5** — strong headless+gRPC story but missing arrangement model. AGPL is stricter than GPL.
 
 ## Decision matrix (top 5)
 
-| DAW/engine | License risk | Build complexity | Scripting depth | Best Humforge use |
+| DAW/engine | License risk | Build complexity | Scripting depth | Best AI DAW DAW use |
 | ---- | ---- | ---- | ---- | ---- |
-| Tracktion Engine | Medium (GPLv3 or pay; JUCE too) | Medium (CMake, JUCE) | Library — you build IPC | **Build Humforge as a new app on top** |
+| Tracktion Engine | Medium (GPLv3 or pay; JUCE too) | Medium (CMake, JUCE) | Library — you build IPC | **Build AI DAW DAW as a new app on top** |
 | Ardour | Medium-High (GPLv2 contagion, no-LLM rule) | High (gtkmm + 1M LOC) | Excellent (Lua + OSC) | Extend with Lua + OSC, fork-friendly |
 | Zrythm | High (AGPL) | Medium | Thin | Watch v2; not yet ready |
 | Bespoke Synth | Medium (GPLv3) | Low-Medium | Good (Python live) | Sound-design sandbox, not arrangement |
@@ -122,9 +122,9 @@ Humforge is a voice-first, agent-driven music creation system in planning. The "
 
 ## Recommendation
 
-- **Primary: Tracktion Engine** — for building Humforge as a *new* C++/JUCE app where agents drive an Edit/Track/Clip model headlessly. GPLv3 is acceptable for an open-source Humforge; commercial dual-license is available if needed later. Best timeline model for agent code-generation, native render-to-file, no GUI to fight.
-- **Fallback: Ardour** — for shipping Humforge as a *layer on top of an existing DAW*. Lua + OSC are mature, the timeline is battle-tested, and macOS/Linux are first-class. Accept GPLv2 and the no-LLM contribution policy (means we keep agent-generated code in our repo, not upstream).
-- **Practical baseline (closed): REAPER** — for users who already own it. ReaScript (Lua/Python) + OSC give the richest agent-control surface anywhere. We can ship a REAPER-extension flavor of Humforge as an optional path, but cannot redistribute REAPER itself.
+- **Primary: Tracktion Engine** — for building AI DAW DAW as a *new* C++/JUCE app where agents drive an Edit/Track/Clip model headlessly. GPLv3 is acceptable for an open-source AI DAW DAW; commercial dual-license is available if needed later. Best timeline model for agent code-generation, native render-to-file, no GUI to fight.
+- **Fallback: Ardour** — for shipping AI DAW DAW as a *layer on top of an existing DAW*. Lua + OSC are mature, the timeline is battle-tested, and macOS/Linux are first-class. Accept GPLv2 and the no-LLM contribution policy (means we keep agent-generated code in our repo, not upstream).
+- **Practical baseline (closed): REAPER** — for users who already own it. ReaScript (Lua/Python) + OSC give the richest agent-control surface anywhere. We can ship a REAPER-extension flavor of AI DAW DAW as an optional path, but cannot redistribute REAPER itself.
 
 ## Web / Electron / agent-first DAWs
 
@@ -140,7 +140,7 @@ The previous section converged on Tracktion Engine (primary) and Ardour (fallbac
 - **Clip/timeline:** Full multi-track timeline, mixer, automation, MIDI editor — feature-parity with mid-tier native DAWs is the explicit target.
 - **Render:** Not explicitly documented in headless template; ffmpeg.wasm is bundled so offline render is technically reachable.
 - **Mac/Linux/Win:** Browser-universal; Tauri wrapper would inherit Mac/Linux/Win. Dev requires Node ≥23 + mkcert.
-- **Humforge fit:** **4/5** — closest existing match to "open-source web DAW you could plausibly drive end-to-end." Risk is the SDK being a moving target before 1.0.
+- **AI DAW DAW fit:** **4/5** — closest existing match to "open-source web DAW you could plausibly drive end-to-end." Risk is the SDK being a moving target before 1.0.
 
 #### Audiotool Studio + NEXUS
 - **License + maintenance:** Studio host is **closed-source / freemium SaaS**; NEXUS SDK examples repo is **MIT** ([github.com/audiotool/nexus-sdk-examples](https://github.com/audiotool/nexus-sdk-examples)). Open beta launched January 2026 ([musically.com](https://musically.com/2026/02/10/open-beta-launches-for-redesigned-audiotool-studio-daw/)).
@@ -149,20 +149,20 @@ The previous section converged on Tracktion Engine (primary) and Ardour (fallbac
 - **Plugin / Web Audio:** Native devices + WAM hosting; partner integrations (Spitfire, Fraunhofer, DAACI).
 - **Clip/timeline:** Full DAW timeline, automation, mixer.
 - **Render:** Cloud-side render; not self-hostable.
-- **Mac/Linux/Win:** Browser-universal, but **the host is not open-source and not self-hostable** — Humforge would be a NEXUS *client*, not a fork.
-- **Humforge fit:** **3/5** — by far the cleanest API, but the host runs on Audiotool's servers and is closed. Dependency, not building block.
+- **Mac/Linux/Win:** Browser-universal, but **the host is not open-source and not self-hostable** — AI DAW DAW would be a NEXUS *client*, not a fork.
+- **AI DAW DAW fit:** **3/5** — by far the cleanest API, but the host runs on Audiotool's servers and is closed. Dependency, not building block.
 
 #### DAWG ([github.com/dawg/dawg](https://github.com/dawg/dawg))
 - **License:** MIT. **Maintenance:** dormant (last release v0.2.3, March 2020).
 - **Architecture:** Electron + Vue + TypeScript + Web Audio.
 - **Agent surface:** None documented; Electron renderer means CDP automation is trivially possible but you'd be driving an unmaintained UI.
-- **Humforge fit:** **2/5** — useful as a reference for how a Vue/Electron DAW lays out, not a base to fork.
+- **AI DAW DAW fit:** **2/5** — useful as a reference for how a Vue/Electron DAW lays out, not a base to fork.
 
 #### Wavtool, BandLab, Soundation, Soundtrap, AmpedStudio
 - All **closed-source** SaaS browser DAWs. Wavtool (the GPT-4 Conductor pioneer) shut down Nov 2024 and was apparently acquired ([audiocipher.com](https://www.audiocipher.com/post/ai-daw)). AmpedStudio uses open-source WAM internally but the host is proprietary. **Reference only**, not eligible building blocks.
 
 #### GridSound, pverrecchia/OpenDAW, node-daw, FL Studio Electron clones
-- Hobby/student-grade open-source web/Electron DAWs. Active to varying degrees but none expose an agent-control surface, none have meaningful plugin ecosystems, and none rival andremichelle/openDAW's depth. **Humforge fit: 1/5.**
+- Hobby/student-grade open-source web/Electron DAWs. Active to varying degrees but none expose an agent-control surface, none have meaningful plugin ecosystems, and none rival andremichelle/openDAW's depth. **AI DAW DAW fit: 1/5.**
 
 #### Existing DAW MCP servers (orthogonal but relevant)
 - `ahujasid/AbletonMCP`, `ptaczek/daw-mcp` (Bitwig + Live), `s2d01/daw-midi-generator-mcp`, `DAW Connect` (29 tools, macOS) — all 2025–2026, all driving **closed-source native DAWs**. Confirm the agent-controls-DAW pattern is real and shippable, but inherit Live/Bitwig licensing constraints.
@@ -176,35 +176,35 @@ The previous section converged on Tracktion Engine (primary) and Ardour (fallbac
 - **ffmpeg.wasm** — render-to-file from the browser without a server.
 
 ### Decision matrix (top 3)
-- **openDAW** — License: AGPL-3 / commercial. Architecture: Web (TS, Web Audio), Tauri planned. Agent-control depth: medium (headless SDK exists, public API thin pre-1.0). Best Humforge use: fork or embed as the renderer, build the MCP layer ourselves.
-- **Audiotool NEXUS** — License: MIT SDK / closed host. Architecture: cloud-only browser DAW, protobuf API. Agent-control depth: high (full project graph, every entity, multi-language SDKs). Best Humforge use: ship Humforge-as-a-NEXUS-client for fastest time-to-demo; cannot self-host.
-- **Tone.js + WaveSurfer + WAM + ffmpeg.wasm** — License: MIT all round. Architecture: build-your-own. Agent-control depth: total (we design the API). Best Humforge use: greenfield Humforge-shaped renderer where the "DAW" is whatever the agent's data model says it is.
+- **openDAW** — License: AGPL-3 / commercial. Architecture: Web (TS, Web Audio), Tauri planned. Agent-control depth: medium (headless SDK exists, public API thin pre-1.0). Best AI DAW DAW use: fork or embed as the renderer, build the MCP layer ourselves.
+- **Audiotool NEXUS** — License: MIT SDK / closed host. Architecture: cloud-only browser DAW, protobuf API. Agent-control depth: high (full project graph, every entity, multi-language SDKs). Best AI DAW DAW use: ship AI DAW DAW-as-a-NEXUS-client for fastest time-to-demo; cannot self-host.
+- **Tone.js + WaveSurfer + WAM + ffmpeg.wasm** — License: MIT all round. Architecture: build-your-own. Agent-control depth: total (we design the API). Best AI DAW DAW use: greenfield AI DAW DAW-shaped renderer where the "DAW" is whatever the agent's data model says it is.
 
 ### Recommendation (web/Electron lens)
-- **Primary:** **openDAW** — only AGPL/commercial open-source web DAW with real depth, an explicit headless SDK, and 2026-active development. Humforge wraps it in Electron/Tauri, layers a Humforge-specific MCP server over the headless SDK, and contributes upstream where the API is thin.
-- **Fallback (fastest demo):** **Audiotool NEXUS as a client integration** — if Humforge's value prop tolerates a SaaS dependency, the NEXUS protobuf surface is the most agent-ready DAW API in existence today. Ship a Humforge agent that drives a NEXUS session, validate the UX, then port to a self-hosted stack.
-- **Build-from-blocks option:** **Tone.js + WaveSurfer + WAM + ffmpeg.wasm + custom React/Svelte shell.** Pick this if openDAW's pace or AGPL implications block product moves, or if Humforge's data model diverges enough from "tracks/clips/automation" that adapting an existing DAW costs more than building.
+- **Primary:** **openDAW** — only AGPL/commercial open-source web DAW with real depth, an explicit headless SDK, and 2026-active development. AI DAW DAW wraps it in Electron/Tauri, layers a AI DAW DAW-specific MCP server over the headless SDK, and contributes upstream where the API is thin.
+- **Fallback (fastest demo):** **Audiotool NEXUS as a client integration** — if AI DAW DAW's value prop tolerates a SaaS dependency, the NEXUS protobuf surface is the most agent-ready DAW API in existence today. Ship a AI DAW DAW agent that drives a NEXUS session, validate the UX, then port to a self-hosted stack.
+- **Build-from-blocks option:** **Tone.js + WaveSurfer + WAM + ffmpeg.wasm + custom React/Svelte shell.** Pick this if openDAW's pace or AGPL implications block product moves, or if AI DAW DAW's data model diverges enough from "tracks/clips/automation" that adapting an existing DAW costs more than building.
 
 ### How this re-prioritizes the overall recommendation
-This *adds a parallel track* rather than replacing Tracktion Engine + Ardour. The native track wins on audio quality, plugin ecosystem (VST3/AU/CLAP), and offline robustness; the web track wins on agent-control ergonomics and ship speed for a voice-first agent demo. A pragmatic plan is **openDAW (or Tone.js-stack) for the agent-first prototype + voice demo, Tracktion Engine for the eventual "pro" backend**, sharing a common project format (probably MIDI + a Humforge JSON envelope) so the agent's mental model is portable. The closed-source Wavtool/Soundtrap/BandLab/AmpedStudio/Soundation references confirm the market shape but contribute nothing forkable.
+This *adds a parallel track* rather than replacing Tracktion Engine + Ardour. The native track wins on audio quality, plugin ecosystem (VST3/AU/CLAP), and offline robustness; the web track wins on agent-control ergonomics and ship speed for a voice-first agent demo. A pragmatic plan is **openDAW (or Tone.js-stack) for the agent-first prototype + voice demo, Tracktion Engine for the eventual "pro" backend**, sharing a common project format (probably MIDI + a AI DAW DAW JSON envelope) so the agent's mental model is portable. The closed-source Wavtool/Soundtrap/BandLab/AmpedStudio/Soundation references confirm the market shape but contribute nothing forkable.
 
 ### Web/Electron-specific open questions
 - Does openDAW's headless SDK expose **transport, render-to-WAV, MIDI import/export, automation write** through documented TS APIs, or only through the GUI today? (Read `opendaw-headless` source + `naomiaro/opendaw-test`.)
-- AGPL §13 implications for Humforge-as-hosted-SaaS — is the commercial license required, and at what cost?
-- NEXUS auth model — API key, OAuth, or session-token? Rate limits? Can a single Humforge agent run an unattended session?
+- AGPL §13 implications for AI DAW DAW-as-hosted-SaaS — is the commercial license required, and at what cost?
+- NEXUS auth model — API key, OAuth, or session-token? Rate limits? Can a single AI DAW DAW agent run an unattended session?
 - Can openDAW host **WAM** plugins today, or only its 18 stock devices? (The WAM standard is open and adopted by Audiotool/AmpedStudio; openDAW's plugin model is unclear.)
-- Tauri vs. Electron for the desktop wrapper — Tauri is on openDAW's roadmap; does Humforge prefer Tauri (smaller, Rust-core) or Electron (CDP automation is dead-simple)?
+- Tauri vs. Electron for the desktop wrapper — Tauri is on openDAW's roadmap; does AI DAW DAW prefer Tauri (smaller, Rust-core) or Electron (CDP automation is dead-simple)?
 - Render-to-file path: ffmpeg.wasm in-browser vs. spawning a headless openDAW Node process vs. offline `OfflineAudioContext`?
-- Are there any **2026 MCP-for-Web-Audio efforts** beyond the Live/Bitwig MCP servers — i.e., would Humforge's MCP server be the first agent surface for an open-source web DAW? (Likely yes — opportunity.)
+- Are there any **2026 MCP-for-Web-Audio efforts** beyond the Live/Bitwig MCP servers — i.e., would AI DAW DAW's MCP server be the first agent surface for an open-source web DAW? (Likely yes — opportunity.)
 
 ## Open questions / things to verify before building
-- Verify Tracktion Engine GPL terms vs. JUCE's separate license at github.com/Tracktion/tracktion_engine/blob/master/LICENSE.md and juce.com/legal — confirm GPL-only Humforge can ship without paid JUCE seat.
+- Verify Tracktion Engine GPL terms vs. JUCE's separate license at github.com/Tracktion/tracktion_engine/blob/master/LICENSE.md and juce.com/legal — confirm GPL-only AI DAW DAW can ship without paid JUCE seat.
 - Confirm Ardour contribution policy specifics if we ever want patches upstream (LLM-code rule per ardour.org/development.html).
 - Test Ardour headless / freewheel render reliability on macOS arm64 in 2026.
 - Benchmark Tracktion Engine `EngineInPluginDemo` and `DemoRunner` to confirm offline render perf for voice-stem layering.
 - Confirm Zrythm v2 stable date — if it ships with a Lua/Python scripting surface, re-rank.
-- Decide Humforge's own license: GPLv3 (compatible with Tracktion Engine GPL path) vs. permissive (would force commercial Tracktion + JUCE seats).
-- Evaluate CLAP plugin coverage on each — Humforge agents will likely prefer CLAP for its modern, scriptable semantics.
+- Decide AI DAW DAW's own license: GPLv3 (compatible with Tracktion Engine GPL path) vs. permissive (would force commercial Tracktion + JUCE seats).
+- Evaluate CLAP plugin coverage on each — AI DAW DAW agents will likely prefer CLAP for its modern, scriptable semantics.
 - Prototype: drive Ardour via OSC from a Python harness; drive Tracktion Engine via a small CLI shim. Compare loops-per-minute on a "lay 8 voice clips on a timeline and render WAV" task.
 
 ## Sources

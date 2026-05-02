@@ -1,8 +1,8 @@
-# Humforge
+# AI DAW DAW
 
 **Working tagline:** make songs by sending voice notes.
 
-Humforge is an open-source, agent-friendly music creation system where a user can send voice notes — humming, singing, beatboxing, or spoken arrangement ideas — and an agent turns them into layered song sketches.
+AI DAW DAW is an open-source, agent-friendly music creation system where a user can send voice notes — humming, singing, beatboxing, or spoken arrangement ideas — and an agent turns them into layered song sketches.
 
 The goal is not a traditional DAW clone and not a one-shot “make me a finished song” toy. The goal is a creative loop:
 
