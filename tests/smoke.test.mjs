@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const plan = readFileSync(new URL('../PLAN.md', import.meta.url), 'utf8');
 
-test('plan names Humforge and metronome feature', () => {
-  assert.match(plan, /Humforge/);
+test('plan names AI DAW DAW and metronome feature', () => {
+  assert.match(plan, /AI DAW DAW/);
   assert.match(plan, /Metronome/);
 });
