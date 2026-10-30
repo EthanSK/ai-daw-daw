@@ -1,5 +1,2 @@
-# License
-
-TBD.
-
-This repository is public while the project is being planned. A real open-source license should be chosen before release or external reuse.
+See LICENSE for the current source offer and LICENSING.md for scope.
+The prior license is preserved verbatim at LICENSES/prior-project-license.txt.
